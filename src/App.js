@@ -1,10 +1,10 @@
 import React from 'react';
-import './App.css';
+import Flipbook from './components/Flipbook'
 
 function App() {
   return (
     <div className="App">
-      hello
+        <Flipbook />
     </div>
   );
 }
