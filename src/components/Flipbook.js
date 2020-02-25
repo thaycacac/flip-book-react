@@ -1,8 +1,9 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { easeIn, easeInOut, easeOut } from '../helper'
 import './Styles.css'
 
 const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
+
     const flipInit = {
         progress: 0,
         direction: null,
@@ -10,6 +11,8 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
         backImage: null,
         auto: false
     }
+
+    const viewportRef = useRef(null)
 
     const [hasTouchEvents, setHasTouchEvents] = useState(false)
     const [hasPointerEvents, setHasPointerEvents] = useState(false)
@@ -34,6 +37,13 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
     const [currentCenterOffset, setCurrentCenterOffset] = useState(null)
     const [minX, setMinX] = useState(Infinity)
     const [maxX, setMaxX] = useState(-Infinity)
+    const [preloadedImages, setPreloadedImages] = useState({})
+
+    useEffect(() => {
+        window.addEventListener('resize', () => onResize(), { passive: true })
+        onResize()
+        preloadImages()
+    }, [])
 
     const onMouseDown = (ev) => {
         console.log('onMouseDown', ev);
@@ -53,6 +63,37 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
         if (hasTouchEvents || hasPointerEvents) { return; }
         if (ev.which && (ev.which !== 1)) { return; } // Ignore right-click
         return swipeEnd(ev);
+    }
+
+    const onResize = () => {
+        setViewWidth(viewportRef.current.clientWidth)
+        setViewHeight(viewportRef.current.clientHeight)
+        setDisplayedPages(viewWidth > viewHeight ? 2 : 1)
+        if (displayedPages === 2) {
+            setCurrentPage(currentPage &= ~1)
+        }
+        if (displayedPages === 1 && !pageUrl(leftPage)) {
+            setCurrentPage(currentPage + 1)
+        }
+        setMinX(Infinity)
+        setMaxX(-Infinity)
+    }
+
+    const preloadImages = () => {
+        let asc, start, end, i, img, url
+        if (Object.keys(preloadedImages).length >= 10) {
+            setPreloadedImages({})
+        }
+        for (start = currentPage - 3, i = start, end = currentPage + 3, asc = start <= end; asc ? i <= end : i >= end; asc ? i++ : i--) {
+            url = pageUrl(i);
+            if (url) {
+                if (!preloadedImages[url]) {
+                    img = new Image();
+                    img.src = url;
+                    preloadedImages[url] = img;
+                }
+            }
+        }
     }
 
     const swipeStart = (touch) => {
@@ -236,7 +277,7 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
             onMouseMove={(ev) => onMouseMove(ev)}
             onMouseUp={(ev) => onMouseUp(ev)}
         >
-            <div className="viewport" className={ zooming || zoom > 1 ? 'zoom' : '' }>
+            <div className="viewport" ref={viewportRef} className={ zooming || zoom > 1 ? 'zoom' : '' }>
                 <div className="container" style={{
                     transform: `scale(${zoom})`,
                     width: containerWidth
