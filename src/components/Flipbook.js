@@ -24,7 +24,7 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
     const [displayedPages, setDisplayedPages] = useState(1)
     const [zooming, setZooming] = useState(false)
     const [leftPage, setLeftPage] = useState(0)
-    const [rightPage, setRightPage] = useState(0)
+    const [rightPage, setRightPage] = useState(1)
     const [nImageLoad, setNImageLoad] = useState(0)
     const [nImageLoadTrigger, setNImageLoadTrigger] = useState(0)
     const [imageLoadCallback, setImageLoadCallback] = useState(null)
@@ -88,7 +88,6 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
     }, [displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages])
 
     const onMouseDown = (ev) => {
-        console.log('onMouseDown', ev);
         if (hasTouchEvents || hasPointerEvents) { return; }
         if (ev.which && (ev.which !== 1)) { return; } // Ignore right-click
         return swipeMove(ev);
@@ -101,13 +100,13 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
     }
 
     const onMouseUp = (ev) => {
-        console.log('onMouseMove', ev);
         if (hasTouchEvents || hasPointerEvents) { return; }
         if (ev.which && (ev.which !== 1)) { return; } // Ignore right-click
         return swipeEnd(ev);
     }
 
     const onResize = () => {
+        console.log(viewportRef.current);
         setViewWidth(viewportRef.current.clientWidth)
         setViewHeight(viewportRef.current.clientHeight)
         setDisplayedPages(viewWidth > viewHeight ? 2 : 1)
@@ -280,7 +279,7 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
     }
 
     const test = () => {
-        return zoom
+        console.log('hello', displayedPages);
     }
 
     return (
@@ -318,7 +317,7 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
                                 src={pageUrl(leftPage, true)}
                                 onLoad={($event) => didLoadImage($event)}
                             />}
-                            {pageUrl(leftPage, true) && displayedPages === 2 && <img
+                            {pageUrl(rightPage, true) && <img
                                 className="page fixed"
                                 style={{
                                     width: pageWidth + 'px',
@@ -326,7 +325,7 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
                                     left: viewWidth / 2 + 'px',
                                     top: yMargin + 'px'
                                 }}
-                                src={pageUrl(leftPage, true)}
+                                src={pageUrl(rightPage, true)}
                                 onLoad={($event) => didLoadImage($event)}
                             />}
                         </div>
