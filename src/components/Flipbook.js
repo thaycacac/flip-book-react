@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { easeIn, easeInOut, easeOut } from '../helper'
+import { easeIn, easeInOut, easeOut, _boundingRight, _boundingLeft, _pageScale } from '../helper'
 import './Styles.css'
 
 const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
@@ -39,11 +39,53 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
     const [maxX, setMaxX] = useState(-Infinity)
     const [preloadedImages, setPreloadedImages] = useState({})
 
+    // computed
+    const [pageScale, setPageScale] = useState(_pageScale(displayedPages, viewWidth, viewHeight, imageWidth, imageHeight))
+    const [pageWidth, setPageWidth] = useState(Math.round(imageWidth * pageScale))
+    const [pageHeight, setPageHeight] = useState(Math.round(imageHeight * pageScale))
+    const [xMargin, setXMargin] = useState((viewWidth - pageWidth * displayedPages) / 2)
+    const [yMargin, setYMargin] = useState((viewHeight - pageHeight) / 2)
+    const [centerOffsetSmoothed, setCenterOffsetSmoothed] = useState(Math.round(currentCenterOffset))
+    const [boundingRight, setBoundingRight] = useState(_boundingRight(displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages))
+    const [boundingLeft, setBoundingLeft] = useState(_boundingLeft(displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages))
+
     useEffect(() => {
         window.addEventListener('resize', () => onResize(), { passive: true })
         onResize()
         preloadImages()
     }, [])
+
+    useEffect(() => {
+        setCenterOffsetSmoothed(Math.round(currentCenterOffset))
+    }, [centerOffsetSmoothed])
+
+    useEffect(() => {
+        setXMargin((viewWidth - pageWidth * displayedPages) / 2)
+    }, [viewWidth, pageWidth, displayedPages])
+
+    useEffect(() => {
+        setYMargin((viewHeight - pageHeight) / 2)
+    }, [viewHeight, pageHeight])
+
+    useEffect(() => {
+        setPageWidth(Math.round(imageWidth * pageScale))
+    }, [imageWidth, pageScale])
+
+    useEffect(() => {
+        setPageHeight(Math.round(imageHeight * pageScale))
+    }, [imageHeight, pageScale])
+
+    useState(() => {
+        setPageScale(displayedPages, viewWidth, viewHeight, imageWidth, imageHeight)
+    }, [displayedPages, viewWidth, viewHeight, imageWidth, imageHeight])
+
+    useState(() => {
+        setBoundingRight(displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages)
+    }, [displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages])
+
+    useState(() => {
+        setBoundingLeft(displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages)
+    }, [displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages])
 
     const onMouseDown = (ev) => {
         console.log('onMouseDown', ev);
@@ -110,40 +152,6 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
     const canFlipRight = () => {
         console.log('canFlipLeft');
         return !flip.direction && currentPage < nPages - displayedPages
-    }
-
-    const centerOffsetSmoothed = () => Math.round(currentCenterOffset)
-
-    const xMargin = () => (viewWidth - pageWidth * displayedPages) / 2
-    
-    const yMargin = () => (viewHeight - pageHeight) / 2
-
-    const boundingLeft = () => {
-        if (displayedPages == 1) { return xMargin }
-        else {
-            const x = pageUrl(leftPage) ? xMargin : viewWidth /2
-            return x < minX ? x : minX
-        }
-    }
-
-    const boundingRight = () => {
-        if (displayedPages == 1) { return viewWidth - xMargin }
-        else {
-            const x = pageUrl(rightPage) ? viewWidth - xMargin : viewWidth /2
-            return x > maxX ? x : maxX
-        }
-    }
-
-    const pageWidth = () => Math.round(imageWidth * pageScale)
-
-    const pageHeight = () => Math.round(imageHeight * pageScale)
-
-    const pageScale = () => {
-        const vw = viewWidth / displayedPages;
-        const xScale = vw / imageWidth;
-        const yScale = viewHeight / imageHeight;
-        const scale = xScale < yScale ? xScale : yScale;
-        if (scale < 1) { return scale; } else { return 1; }
     }
 
     const pageUrl = (page, hiRes = false) => {
@@ -271,12 +279,17 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
 
     }
 
+    const test = () => {
+        return zoom
+    }
+
     return (
         <div
             onMouseDown={(ev) => onMouseDown(ev)}
             onMouseMove={(ev) => onMouseMove(ev)}
             onMouseUp={(ev) => onMouseUp(ev)}
         >
+            <button onClick={test}>test</button>
             <div className="viewport" ref={viewportRef} className={ zooming || zoom > 1 ? 'zoom' : '' }>
                 <div className="container" style={{
                     transform: `scale(${zoom})`,
