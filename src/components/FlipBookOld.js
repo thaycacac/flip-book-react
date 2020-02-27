@@ -5,6 +5,7 @@ import {
     easeOut,
     _boundingRight,
     _boundingLeft,
+    _pageScale,
     _pageWidth,
     _pageHeight,
     _xMargin,
@@ -49,38 +50,22 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
     const [minX, setMinX] = useState(Infinity)
     const [maxX, setMaxX] = useState(-Infinity)
     const [preloadedImages, setPreloadedImages] = useState({})
-    const [pageScale, setPageScale] = useState(1)
 
     // computed
+    const pageScale = _pageScale(displayedPages, viewWidth, viewHeight, imageWidth, imageHeight)
     const pageWidth = _pageWidth(imageWidth, pageScale)
     const pageHeight = _pageHeight(imageHeight, pageScale)
     const xMargin = _xMargin(viewWidth, pageWidth, displayedPages)
     const yMargin = _yMargin(viewHeight, pageHeight)
     const centerOffsetSmoothed = _centerOffsetSmoothed(currentCenterOffset)
-    const boundingRight = _boundingRight(displayedPages, viewWidth, xMargin, rightPage, maxX, pages)
-    const boundingLeft = _boundingLeft(displayedPages, viewWidth, xMargin, leftPage, minX, pages)
+    const boundingRight = _boundingRight(displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages)
+    const boundingLeft = _boundingLeft(displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages)
 
     useEffect(() => {
         window.addEventListener('resize', () => onResize(), { passive: true })
         onResize()
         preloadImages()
-        // computed
-        handlePageScale()
-    }, [viewWidth, viewHeight])
-
-    const handlePageScale = () => {
-        console.log('fdsfsdf',viewWidth, displayedPages);
-        const vw = viewWidth / displayedPages;
-        const xScale = vw / imageWidth;
-        const yScale = viewHeight / imageHeight;
-        const scale = xScale < yScale ? xScale : yScale;
-        console.log('scale', scale);
-        if (scale < 1) {
-            setPageScale(scale)
-        } else {
-            setPageScale(1)
-        }
-    }
+    }, [])
 
     useEffect(() => {
         console.log('computed', {
@@ -94,15 +79,9 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
             'boundingLeft': boundingLeft,
             'displayedPages': displayedPages,
             'viewHeight': viewHeight,
-            'viewWidth': viewWidth,
-            'currentPage': currentPage,
-            'leftPage': leftPage,
-            'maxX': maxX,
-            'minX': minX,
-            'imageWidth': imageWidth,
-            'imageHeight': imageHeight
+            'viewWidth': viewHeight
         })
-    }, [displayedPages, viewHeight, xMargin, rightPage, maxX,imageWidth, pageScale, viewWidth, pageWidth, pageHeight, currentCenterOffset, minX, leftPage])
+    }, [displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming, imageWidth, pageScale, viewWidth, pageWidth, pageHeight, currentCenterOffset, minX, leftPage])
 
     const onMouseDown = (ev) => {
         if (hasTouchEvents || hasPointerEvents) { return; }
@@ -116,14 +95,19 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
         return swipeStart(ev);
     }
 
+    const onMouseUp = (ev) => {
+        if (hasTouchEvents || hasPointerEvents) { return; }
+        if (ev.which && (ev.which !== 1)) { return; } // Ignore right-click
+        return swipeEnd(ev);
+    }
+
     const onResize = () => {
-        const width = viewportRef.current.clientWidth
-        const height = viewportRef.current.clientHeight
-        setViewWidth(width)
-        setViewHeight(height)
+        setViewWidth(viewportRef.current.clientWidth)
+        setViewHeight(viewportRef.current.clientHeight)
+        console.log('onResize', 'viewWidth', viewWidth, 'viewHeight', viewHeight, viewportRef.current.clientWidth, viewportRef.current.clientHeight)
         setDisplayedPages(viewWidth > viewHeight ? 2 : 1)
         if (displayedPages === 2) {
-            setCurrentPage(currentPage = currentPage &~1)
+            setCurrentPage(currentPage &= ~1)
         }
         if (displayedPages === 1 && !pageUrl(leftPage)) {
             setCurrentPage(currentPage + 1)
@@ -290,11 +274,16 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
 
     }
 
+    const test = () => {
+        console.log('hello', displayedPages);
+    }
+
     return (
         <div
             className="flipbook"
             onMouseDown={(ev) => onMouseDown(ev)}
             onMouseMove={(ev) => onMouseMove(ev)}
+            onMouseUp={(ev) => onMouseUp(ev)}
         >
             <div ref={viewportRef} className={ zooming || zoom > 1 ? 'viewport zoom' : 'viewport' }>
                 <div className="container" style={{
@@ -313,7 +302,7 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
                             height: pageHeight + 'px'
                         }}
                         >
-                            {pageUrl(leftPage, true) && displayedPages === 2 && <img
+                            {pageUrl(leftPage, true) && <img
                                 className="page fixed"
                                 style={{
                                     width: pageWidth + 'px',

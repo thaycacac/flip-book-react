@@ -8,46 +8,36 @@ export const easeInOut = function(x) {
   if (x < 0.5) { return easeIn(x * 2) / 2; } else { return 0.5 + (easeOut((x - 0.5) * 2) / 2); }
 };
 
-const pageUrl = (page, zoom, zooming, pagesHires, pages, hiRes = false) => {
-  if (hiRes && zoom > 1 && !zooming) {
-      const url = pagesHires[page]
-      if (url) return url
-  }
+const pageUrl = (page, pages) => {
   return pages[page] || null
 }
 
-const boundingRight = (displayedPages, viewWidth, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages) => {
+const boundingRight = (displayedPages, viewWidth, xMargin, rightPage, maxX, pages) => {
   if (displayedPages === 1) { return viewWidth - xMargin }
   else {
-      const x = pageUrl(rightPage, zoom, zooming, pagesHires, pages) ? viewWidth - xMargin : viewWidth / 2
-      console.log('boundright', x, maxX)
+      const x = pageUrl(rightPage, pages) ? viewWidth - xMargin : viewWidth / 2
       return x > maxX ? x : maxX
   }
 }
 
-const boundingLeft = (displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages) => {
-  console.log('boundingLeft');
+const boundingLeft = (displayedPages, viewWidth, xMargin, leftPage, minX, pages) => {
   if (displayedPages === 1) { return xMargin }
   else {
-      const x = pageUrl(leftPage, zoom, zooming, pagesHires, pages) ? xMargin : viewWidth / 2
+      const x = pageUrl(leftPage, pages) ? xMargin : viewWidth / 2
       return x < minX ? x : minX 
   }
 }
 
-const pageScale = (displayedPages, viewWidth, viewHeight, imageWidth, imageHeight) => {
-  const vw = viewWidth / displayedPages;
-  const xScale = vw / imageWidth;
-  const yScale = viewHeight / imageHeight;
-  const scale = xScale < yScale ? xScale : yScale;
-  console.log('pageScale', displayedPages, viewWidth, viewHeight, imageWidth, imageHeight, scale);
-  if (scale < 1) { return scale; } else { return 1; }
+const pageWidth = (imageWidth, pageScale) => {
+  return Math.round(imageWidth * pageScale)
 }
-
-const pageWidth = (imageWidth, pageScale) => Math.round(imageWidth * pageScale)
 
 const pageHeight = (imageHeight, pageScale) => Math.round(imageHeight * pageScale)
 
-const xMargin = (viewWidth, pageWidth, displayedPages) => (viewWidth - pageWidth * displayedPages) / 2
+const xMargin = (viewWidth, pageWidth, displayedPages) => {
+  console.log('xMargin', viewWidth, pageWidth, displayedPages);
+  return (viewWidth - pageWidth * displayedPages) / 2
+}
 
 const yMargin = (viewHeight, pageHeight) => (viewHeight - pageHeight) / 2
 
@@ -56,7 +46,6 @@ const centerOffsetSmoothed = (currentCenterOffset) => Math.round(currentCenterOf
 export const _pageUrl = memoize(pageUrl)
 export const _boundingRight = memoize(boundingRight)
 export const _boundingLeft = memoize(boundingLeft)
-export const _pageScale = memoize(pageScale)
 export const _pageWidth = memoize(pageWidth)
 export const _pageHeight = memoize(pageHeight)
 export const _xMargin = memoize(xMargin)
