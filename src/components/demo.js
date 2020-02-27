@@ -1,33 +1,39 @@
-import React, { useState } from 'react'
-import memoize from 'lodash/memoize'
+import React, { useState, useEffect } from "react";
+import memoize from "lodash/memoize";
+import { render } from "@testing-library/react";
+import { testNameToKey } from "jest-snapshot/build/utils";
 
-const Demo = () => {
-    const [firstName, setFirstName] = useState('H')
-    const [lastName, setLastName] = useState('')
+class Demo extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      count: 0
+    };
+  }
 
-    const first = (ev) => {
-        setFirstName(ev.target.value)
-    }
+  componentDidMount() {
+    this.test();
+  }
 
-    const last = (ev) => {
-        setLastName(ev.target.value)
-    }
+  increase() {
+    this.setState({
+      count: this.state.count + 1
+    });
+  }
 
-    const fullname = (firstname, lastname) => {
-        return firstname + lastname + 'hello'
-    }
+  test = () => {
+    console.log("object");
+  };
 
-    const fullnameMemo = memoize(fullname)
-    const reaFull = fullnameMemo(firstName, lastName)
-
+  render() {
     return (
-        <>
-        <input onChange={e => first(e)}></input>
-        <input onChange={e => last(e)}></input>
-        <p>{firstName}: {lastName}</p>
-        <p>{reaFull}</p>
-        </>
-    )
+      <>
+        <p>hello</p>
+        <p>{this.state.count}</p>
+        <button onClick={() => this.increase()}>Click</button>
+      </>
+    );
+  }
 }
 
-export default Demo
+export default Demo;
