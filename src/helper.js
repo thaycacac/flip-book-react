@@ -1,3 +1,5 @@
+import memoize from 'lodash/memoize'
+
 export const easeIn = x => Math.pow(x, 2);
 
 export const easeOut = x => 1 - easeIn(1 - x);
@@ -14,7 +16,7 @@ const pageUrl = (page, zoom, zooming, pagesHires, pages, hiRes = false) => {
   return pages[page] || null
 }
 
-export const _boundingRight = (displayedPages, viewWidth, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages) => {
+const boundingRight = (displayedPages, viewWidth, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages) => {
   if (displayedPages === 1) { return viewWidth - xMargin }
   else {
       const x = pageUrl(rightPage, zoom, zooming, pagesHires, pages) ? viewWidth - xMargin : viewWidth / 2
@@ -23,7 +25,7 @@ export const _boundingRight = (displayedPages, viewWidth, xMargin, rightPage, ma
   }
 }
 
-export const _boundingLeft = (displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages) => {
+const boundingLeft = (displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages) => {
   console.log('boundingLeft');
   if (displayedPages === 1) { return xMargin }
   else {
@@ -32,7 +34,7 @@ export const _boundingLeft = (displayedPages, viewWidth, xMargin, leftPage, minX
   }
 }
 
-export const _pageScale = (displayedPages, viewWidth, viewHeight, imageWidth, imageHeight) => {
+const pageScale = (displayedPages, viewWidth, viewHeight, imageWidth, imageHeight) => {
   const vw = viewWidth / displayedPages;
   const xScale = vw / imageWidth;
   const yScale = viewHeight / imageHeight;
@@ -40,3 +42,23 @@ export const _pageScale = (displayedPages, viewWidth, viewHeight, imageWidth, im
   console.log('pageScale', displayedPages, viewWidth, viewHeight, imageWidth, imageHeight, scale);
   if (scale < 1) { return scale; } else { return 1; }
 }
+
+const pageWidth = (imageWidth, pageScale) => Math.round(imageWidth * pageScale)
+
+const pageHeight = (imageHeight, pageScale) => Math.round(imageHeight * pageScale)
+
+const xMargin = (viewWidth, pageWidth, displayedPages) => (viewWidth - pageWidth * displayedPages) / 2
+
+const yMargin = (viewHeight, pageHeight) => (viewHeight - pageHeight) / 2
+
+const centerOffsetSmoothed = (currentCenterOffset) => Math.round(currentCenterOffset)
+
+export const _pageUrl = memoize(pageUrl)
+export const _boundingRight = memoize(boundingRight)
+export const _boundingLeft = memoize(boundingLeft)
+export const _pageScale = memoize(pageScale)
+export const _pageWidth = memoize(pageWidth)
+export const _pageHeight = memoize(pageHeight)
+export const _xMargin = memoize(xMargin)
+export const _yMargin = memoize(yMargin)
+export const _centerOffsetSmoothed = memoize(centerOffsetSmoothed)

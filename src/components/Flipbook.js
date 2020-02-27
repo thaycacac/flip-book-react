@@ -1,5 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react'
-import { easeIn, easeInOut, easeOut, _boundingRight, _boundingLeft, _pageScale } from '../helper'
+import {
+    easeIn,
+    easeInOut,
+    easeOut,
+    _boundingRight,
+    _boundingLeft,
+    _pageScale,
+    _pageWidth,
+    _pageHeight,
+    _xMargin,
+    _yMargin,
+    _centerOffsetSmoothed
+} from '../helper'
 import './Styles.css'
 
 const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
@@ -40,53 +52,20 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
     const [preloadedImages, setPreloadedImages] = useState({})
 
     // computed
-    const [pageScale, setPageScale] = useState(_pageScale(displayedPages, viewWidth, viewHeight, imageWidth, imageHeight))
-    const [pageWidth, setPageWidth] = useState(Math.round(imageWidth * pageScale))
-    const [pageHeight, setPageHeight] = useState(Math.round(imageHeight * pageScale))
-    const [xMargin, setXMargin] = useState((viewWidth - pageWidth * displayedPages) / 2)
-    const [yMargin, setYMargin] = useState((viewHeight - pageHeight) / 2)
-    const [centerOffsetSmoothed, setCenterOffsetSmoothed] = useState(Math.round(currentCenterOffset))
-    const [boundingRight, setBoundingRight] = useState(_boundingRight(displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages))
-    const [boundingLeft, setBoundingLeft] = useState(_boundingLeft(displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages))
+    const pageScale = _pageScale(displayedPages, viewWidth, viewHeight, imageWidth, imageHeight)
+    const pageWidth = _pageWidth(imageWidth, pageScale)
+    const pageHeight = _pageHeight(imageHeight, pageScale)
+    const xMargin = _xMargin(viewWidth, pageWidth, displayedPages)
+    const yMargin = _yMargin(viewHeight, pageHeight)
+    const centerOffsetSmoothed = _centerOffsetSmoothed(currentCenterOffset)
+    const boundingRight = _boundingRight(displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages)
+    const boundingLeft = _boundingLeft(displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages)
 
     useEffect(() => {
         window.addEventListener('resize', () => onResize(), { passive: true })
         onResize()
         preloadImages()
-        console.log('oke', boundingRight);
     }, [])
-
-    useEffect(() => {
-        setCenterOffsetSmoothed(Math.round(currentCenterOffset))
-    }, [centerOffsetSmoothed])
-
-    useEffect(() => {
-        setXMargin((viewWidth - pageWidth * displayedPages) / 2)
-    }, [viewWidth, pageWidth, displayedPages])
-
-    useEffect(() => {
-        setYMargin((viewHeight - pageHeight) / 2)
-    }, [viewHeight, pageHeight])
-
-    useEffect(() => {
-        setPageWidth(Math.round(imageWidth * pageScale))
-    }, [pageScale])
-
-    useEffect(() => {
-        setPageHeight(Math.round(imageHeight * pageScale))
-    }, [pageScale])
-
-    useState(() => {
-        setPageScale(displayedPages, viewWidth, viewHeight, imageWidth, imageHeight)
-    }, [displayedPages, viewWidth, viewHeight, imageWidth, imageHeight])
-
-    useState(() => {
-        setBoundingRight(displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages)
-    }, [displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming])
-
-    useState(() => {
-        setBoundingLeft(displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages)
-    }, [displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages])
 
     const onMouseDown = (ev) => {
         if (hasTouchEvents || hasPointerEvents) { return; }

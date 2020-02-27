@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Flipbook from './components/Flipbook'
+import Demo from './components/demo'
 import './App.css'
 
 function App() {
