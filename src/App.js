@@ -34,10 +34,9 @@ function App() {
       onTouchStart={() => setHasMouse(false)}
     >
         <Flipbook
-          class="flipbook"
           pages={pages}
           pagesHiRes={pagesHires}
-         />
+        />
     </div>
   );
 }

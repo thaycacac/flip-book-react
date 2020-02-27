@@ -53,6 +53,7 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
         window.addEventListener('resize', () => onResize(), { passive: true })
         onResize()
         preloadImages()
+        console.log('oke', boundingRight);
     }, [])
 
     useEffect(() => {
@@ -69,11 +70,11 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
 
     useEffect(() => {
         setPageWidth(Math.round(imageWidth * pageScale))
-    }, [imageWidth, pageScale])
+    }, [pageScale])
 
     useEffect(() => {
         setPageHeight(Math.round(imageHeight * pageScale))
-    }, [imageHeight, pageScale])
+    }, [pageScale])
 
     useState(() => {
         setPageScale(displayedPages, viewWidth, viewHeight, imageWidth, imageHeight)
@@ -81,7 +82,7 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
 
     useState(() => {
         setBoundingRight(displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages)
-    }, [displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages])
+    }, [displayedPages, viewHeight, xMargin, rightPage, maxX, zoom, zooming])
 
     useState(() => {
         setBoundingLeft(displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages)
@@ -106,9 +107,9 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
     }
 
     const onResize = () => {
-        console.log(viewportRef.current);
         setViewWidth(viewportRef.current.clientWidth)
         setViewHeight(viewportRef.current.clientHeight)
+        console.log('onResize', 'viewWidth', viewWidth, 'viewHeight', viewHeight, viewportRef.current.clientWidth, viewportRef.current.clientHeight)
         setDisplayedPages(viewWidth > viewHeight ? 2 : 1)
         if (displayedPages === 2) {
             setCurrentPage(currentPage &= ~1)
@@ -211,11 +212,11 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
         return requestAnimationFrame(() => {
             return requestAnimationFrame(() => {
                 if (flip.direction === 'left') {
-                    if (displayedPages == 2) {
+                    if (displayedPages === 2) {
                         setLeftPage(currentPage - displayedPages)
                     }
                 } else {
-                    if (displayedPages == 1) {
+                    if (displayedPages === 1) {
                         setLeftPage(currentPage + displayedPages)
                     } else {
                         setRightPage(currentPage + 1 + displayedPages)
@@ -284,12 +285,13 @@ const Flipbook = ({ pages, pagesHires, flipDuration = 1000}) => {
 
     return (
         <div
+            className="flipbook"
             onMouseDown={(ev) => onMouseDown(ev)}
             onMouseMove={(ev) => onMouseMove(ev)}
             onMouseUp={(ev) => onMouseUp(ev)}
         >
             <button onClick={test}>test</button>
-            <div className="viewport" ref={viewportRef} className={ zooming || zoom > 1 ? 'zoom' : '' }>
+            <div ref={viewportRef} className={ zooming || zoom > 1 ? 'viewport zoom' : 'viewport' }>
                 <div className="container" style={{
                     transform: `scale(${zoom})`,
                     width: containerWidth

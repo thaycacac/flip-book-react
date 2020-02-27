@@ -15,15 +15,17 @@ const pageUrl = (page, zoom, zooming, pagesHires, pages, hiRes = false) => {
 }
 
 export const _boundingRight = (displayedPages, viewWidth, xMargin, rightPage, maxX, zoom, zooming, pagesHires, pages) => {
-  if (displayedPages == 1) { return viewWidth - xMargin }
+  if (displayedPages === 1) { return viewWidth - xMargin }
   else {
-      const x = pageUrl(rightPage, zoom, zooming, pagesHires, pages) ? viewWidth - xMargin : viewWidth /2
+      const x = pageUrl(rightPage, zoom, zooming, pagesHires, pages) ? viewWidth - xMargin : viewWidth / 2
+      console.log('boundright', x, maxX)
       return x > maxX ? x : maxX
   }
 }
 
 export const _boundingLeft = (displayedPages, viewWidth, xMargin, leftPage, minX, zoom, zooming, pagesHires, pages) => {
-  if (displayedPages == 1) { return xMargin }
+  console.log('boundingLeft');
+  if (displayedPages === 1) { return xMargin }
   else {
       const x = pageUrl(leftPage, zoom, zooming, pagesHires, pages) ? xMargin : viewWidth / 2
       return x < minX ? x : minX 
@@ -35,5 +37,6 @@ export const _pageScale = (displayedPages, viewWidth, viewHeight, imageWidth, im
   const xScale = vw / imageWidth;
   const yScale = viewHeight / imageHeight;
   const scale = xScale < yScale ? xScale : yScale;
+  console.log('pageScale', displayedPages, viewWidth, viewHeight, imageWidth, imageHeight, scale);
   if (scale < 1) { return scale; } else { return 1; }
 }
