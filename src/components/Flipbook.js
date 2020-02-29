@@ -7,7 +7,10 @@ import {
 import {
   _canFlipLeft,
   _canFlipRight,
-  _polygonArray
+  _polygonArray,
+  _polygonBgSize,
+  _polygonHeight,
+  _polygonWidth
 } from '../computed'
 import "./Styles.css";
 
@@ -15,7 +18,6 @@ const Flipbook = ({
   pages,
   flipDuration = 1000,
   perspective = '2400px',
-  nPolygons = 10,
   spaceTop = 0
 }) => {
   const flipInit = {
@@ -47,7 +49,10 @@ const Flipbook = ({
   // computed
   const canFlipLeft = _canFlipLeft(pages, flip, currentPage, displayedPages, leftPage)
   const canFlipRight = _canFlipRight(flip, currentPage, nPages, displayedPages)
-  const polygonArray = _polygonArray(flip, displayedPages, pageWidth, nPolygons, xMargin, spaceTop, perspective, minX, maxX, setMinX, setMaxX)
+  const polygonArray = _polygonArray(flip, displayedPages, pageWidth, xMargin, spaceTop, perspective, minX, maxX, setMinX, setMaxX)
+  const polygonBgSize = _polygonBgSize(pageWidth, pageHeight)
+  const polygonWidth = _polygonWidth(pageWidth)
+  const polygonHeight = _polygonHeight(pageHeight)
 
   useEffect(() => {
     onResize();
@@ -65,22 +70,36 @@ const Flipbook = ({
     }
   }
 
+  const logEvery = () => {
+    console.log({
+      currentPage: currentPage,
+      displayedPages: displayedPages,
+      flip: flip,
+      hasPointerEvents: hasPointerEvents,
+      imageLoadCallback: imageLoadCallback,
+      leftPage: leftPage,
+      maxX: maxX,
+      minX: minX,
+      nImageLoad: nImageLoad,
+      nImageLoadTrigger: nImageLoadTrigger,
+      nPages: nPages,
+      pageHeight: pageHeight,
+      pageWidth: pageWidth,
+      preloadedImages: preloadImages,
+      rightPage: rightPage,
+      touchStartX: touchStartX,
+      touchStartY: touchStartY,
+      canFlipLeft: canFlipLeft,
+      canFlipRight: canFlipRight,
+      polygonArray: polygonArray,
+      polygonBgSize: polygonBgSize,
+      polygonWidth: polygonWidth,
+      polygonHeight: polygonHeight
+    });
+  }
+
   const pageUrl = (page) => {
     return pages[page] || null;
-  }
-
-  const flipLeft = () => {
-    if (!canFlipLeft) {
-      return;
-    }
-    return flipStart('left', true);
-  }
-
-  const flipRight = () => {
-    if (!canFlipRight) {
-      return;
-    }
-    return flipStart('right', true);
   }
 
   const flipStart = (direction, auto) => {
@@ -246,7 +265,6 @@ const Flipbook = ({
   const swipeStart = touch => {
     setTouchStartX(touch.pageX);
     setTouchStartY(touch.pageY);
-    return touch.pageY
   }
 
   const swipeMove = touch => {
@@ -266,7 +284,7 @@ const Flipbook = ({
       if (flip.direction === 'left') {
         setFlip({
           ...flip,
-          progress: x / this.pageWidth
+          progress: x / pageWidth
         })
         if (flip.progress > 1) {
           setFlip({
@@ -393,29 +411,31 @@ const Flipbook = ({
             src={pageUrl(rightPage)}
             onLoad={($event) => didLoadImage($event)}
           />}
-              
-
-              {/* <div
-                v-for="[key, bgImage, lighting, bgPos, transform, z] in polygonArray"
-                class="polygon"
-                :key="key"
-                :class="{ blank: !bgImage }"
-                :style="{
-                  backgroundImage: bgImage,
+          {
+            polygonArray.map((item, index) => {
+              return (
+                <div
+                key={ index }
+                className={ item.bgImage ? 'polygon blank' : 'polygon'}
+                style={{
+                  backgroundImage: item.bgImage,
                   backgroundSize: polygonBgSize,
-                  backgroundPosition: bgPos,
+                  backgroundPosition: item.bgPos,
                   width: polygonWidth,
                   height: polygonHeight,
-                  transform: transform,
-                  zIndex: z
-                }"
-              >
-                <div
-                  class="lighting"
-                  v-show="lighting.length"
-                  :style="{ backgroundImage: lighting }"
-            />
-          </div> */}
+                  transform: item.transform,
+                  zIndex: item.z
+                }}
+                >
+                  <div
+                    className="lighting"
+                    v-show="lighting.length"
+                    style={{ backgroundImage: 'lighting' }}
+                  />
+                </div>
+              )
+            })
+          }
           </div>
         </div>
       </div>
