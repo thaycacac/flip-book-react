@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Flipbook from "./components/FlipBookNew";
+import Flipbook from "./components/Flipbook";
 import { Provider } from "unstated";
 import "./App.css";
 
@@ -14,19 +14,8 @@ function App() {
     "images/6.jpg"
   ];
 
-  const initPagesHiRes = [
-    null,
-    "images-large/1.jpg",
-    "images-large/2.jpg",
-    "images-large/3.jpg",
-    "images-large/4.jpg",
-    "images-large/5.jpg",
-    "images-large/6.jpg"
-  ];
-
   const [hasMouse, setHasMouse] = useState(true);
   const [pages, setPages] = useState(initPages);
-  const [pagesHires, setPagesHires] = useState(initPagesHiRes);
 
   return (
     <Provider>
@@ -35,7 +24,7 @@ function App() {
         className={hasMouse ? "has-mouse" : ""}
         onTouchStart={() => setHasMouse(false)}
       >
-        <Flipbook pages={pages} pagesHiRes={pagesHires} />
+        <Flipbook pages={pages}/>
         {/* <Demo /> */}
       </div>
     </Provider>

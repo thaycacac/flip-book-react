@@ -1,39 +1,49 @@
 import {
   identity,
   multiply,
-  perspective,
   translate,
-  translate3d,
-  rotateY,
-  toString
+  translateZ,
+  rotateY
 } from 'rematrix';
 
 export default class Matrix {
   constructor(arg) {
     if (arg) {
-      if (arg.m) {
-        this.m = [...Array.from(arg.m)];
+      if (Array.isArray(arg)) {
+        this.m = arg;
       } else {
-        this.m = [...Array.from(arg)];
+        this.m = [...arg.m];
       }
     } else {
       this.m = identity();
     }
   }
 
-  clone() { return new Matrix(this); }
+  multiply(m) {
+    if (!Array.isArray(m)) {
+      m = m.m;
+    }
+    return this.m = multiply(this.m, m);
+  }
 
-  multiply(m) { return this.m = multiply(this.m, m); }
+  computeX() {
+    return this.m[12];
+  }
 
-  perspective(d) { return this.multiply(perspective(d)); }
+  translate(x, y) {
+    return this.multiply(translate(x, y));
+  }
 
-  transformX(x) { return ((x * this.m[0]) + this.m[12]) / ((x * this.m[3]) + this.m[15]); }
+  translateZ(z) {
+    return this.multiply(translateZ(z));
+  }
 
-  translate(x, y) { return this.multiply(translate(x, y)); }
+  rotateY(deg) {
+    return this.multiply(rotateY(deg));
+  }
 
-  translate3d(x, y, z) { return this.multiply(translate3d(x, y, z)); }
+  toString() {
+    return `matrix3d(${this.m.toString()})`;
+  }
 
-  rotateY(deg) { return this.multiply(rotateY(deg)); }
-
-  toString() { return toString(this.m); }
-}
+};
