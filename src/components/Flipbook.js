@@ -17,7 +17,6 @@ import "./Styles.css";
 const Flipbook = ({
   pages,
   flipDuration = 1000,
-  perspective = '2400px',
   spaceTop = 0
 }) => {
   const flipInit = {
@@ -49,7 +48,7 @@ const Flipbook = ({
   // computed
   const canFlipLeft = _canFlipLeft(pages, flip, currentPage, displayedPages, leftPage)
   const canFlipRight = _canFlipRight(flip, currentPage, nPages, displayedPages)
-  const polygonArray = _polygonArray(flip, displayedPages, pageWidth, xMargin, spaceTop, perspective, minX, maxX, setMinX, setMaxX)
+  const polygonArray = _polygonArray(flip, displayedPages, pageWidth, xMargin, spaceTop, minX, maxX, setMinX, setMaxX)
   const polygonBgSize = _polygonBgSize(pageWidth, pageHeight)
   const polygonWidth = _polygonWidth(pageWidth)
   const polygonHeight = _polygonHeight(pageHeight)
@@ -62,12 +61,6 @@ const Flipbook = ({
   // method
   const onResize = () => {
     setDisplayedPages(pageWidth * 2 > pageHeight ? 2 : 1)
-    if (displayedPages === 2) {
-      setCurrentPage(currentPage &= ~1)
-    }
-    if (displayedPages === 1 && !pageUrl(leftPage)) {
-      setCurrentPage(currentPage + 1)
-    }
   }
 
   const logEvery = () => {
@@ -268,6 +261,7 @@ const Flipbook = ({
   }
 
   const swipeMove = touch => {
+    logEvery()
     var x, y;
     if (touchStartX == null) {
       return;
@@ -353,27 +347,26 @@ const Flipbook = ({
   }
 
   const preloadImages = () => {
-    let asc, start, end, i, img, url;
+    var i, img, j, ref, ref1, results, url;
     if (Object.keys(preloadedImages).length >= 10) {
-      setPreloadedImages({});
+      this.preloadedImages = {};
     }
-    for (
-      start = currentPage - 3,
-        i = start,
-        end = currentPage + 3,
-        asc = start <= end;
-      asc ? i <= end : i >= end;
-      asc ? i++ : i--
-    ) {
+    results = [];
+    for (i = j = ref = currentPage - 3, ref1 = currentPage + 3; (ref <= ref1 ? j <= ref1 : j >= ref1); i = ref <= ref1 ? ++j : --j) {
       url = pageUrl(i);
       if (url) {
         if (!preloadedImages[url]) {
           img = new Image();
           img.src = url;
-          preloadedImages[url] = img;
+          results.push(preloadedImages[url] = img);
+        } else {
+          results.push(void 0);
         }
+      } else {
+        results.push(void 0);
       }
     }
+    return results;
   };
 
   return (
@@ -437,6 +430,7 @@ const Flipbook = ({
             })
           }
           </div>
+          <div className="guard" />
         </div>
       </div>
     </div>

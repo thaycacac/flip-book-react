@@ -12,6 +12,15 @@
   user-select: none;
 }
 
+.bounding-box {
+  position: absolute;
+}
+
+.page {
+  position: absolute;
+  backface-visibility: hidden;
+}
+
 .polygon {
   position: absolute;
   top: 0;

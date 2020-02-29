@@ -4,6 +4,7 @@ import Matrix from './matrix'
 const IE = /Trident/.test(navigator.userAgent)
 const gloss = 0.6
 const nPolygons = 10
+const perspective = '2400px'
 
 const pageUrl = (pages, page) => {
   return pages[page] || null;
@@ -36,7 +37,7 @@ const polygonBgSize = (pageWidth, pageHeight) => {
   return `${pageWidth}px ${pageHeight}px`;
 }
 
-const makePolygonArray = (face, flip, displayedPages, pageWidth, xMargin, spaceTop, perspective, minX, maxX, setMinX, setMaxX) => {
+const makePolygonArray = (face, flip, displayedPages, pageWidth, xMargin, spaceTop, minX, maxX, setMinX, setMaxX) => {
   var ax,
       bgImg,
       bgPos,
@@ -206,9 +207,9 @@ const computeLighting = (rot, dRotate, ambient) => {
   return gradients.join(',');
 };
 
-const polygonArray = (flip, displayedPages, pageWidth, xMargin, spaceTop, perspective, minX, maxX, setMinX, setMaxX) => {
-  return makePolygonArray('front', flip, displayedPages, pageWidth, xMargin, spaceTop, perspective, minX, maxX, setMinX, setMaxX)
-    .concat(makePolygonArray('back', flip, displayedPages, pageWidth, xMargin, spaceTop, perspective, minX, maxX, setMinX, setMaxX))
+const polygonArray = (flip, displayedPages, pageWidth, xMargin, spaceTop, minX, maxX, setMinX, setMaxX) => {
+  return makePolygonArray('front', flip, displayedPages, pageWidth, xMargin, spaceTop, minX, maxX, setMinX, setMaxX)
+    .concat(makePolygonArray('back', flip, displayedPages, pageWidth, xMargin, spaceTop, minX, maxX, setMinX, setMaxX))
 }
 
 export const _canFlipLeft = memoize(canFlipLeft)
