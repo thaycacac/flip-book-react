@@ -95,7 +95,7 @@ const Flipbook = ({
     return pages[page] || null;
   }
 
-  const flipStart = (direction, auto) => {
+  const flipStart = async (direction, auto) => {
     if (direction === 'left') {
       if (displayedPages === 1) {
         setFlip({
@@ -114,22 +114,19 @@ const Flipbook = ({
       if (displayedPages === 1) {
         setFlip({
           ...flip,
+          direction: direction,
           frontImage: pageUrl(currentPage),
           backImage: null
         })
       } else {
         setFlip({
           ...flip,
+          direction: direction,
           frontImage: pageUrl(rightPage),
           backImage: pageUrl(currentPage + displayedPages)
         })
       }
     }
-    setFlip({
-      ...flip,
-      direction: direction,
-      progress: 0
-    })
     return requestAnimationFrame(() => {
       return requestAnimationFrame(() => {
         if (flip.direction === 'left') {
@@ -292,6 +289,7 @@ const Flipbook = ({
         flipStart('right', false);
       }
       if (flip.direction === 'right') {
+        console.log('object', -x / pageWidth);
         setFlip({
           ...flip,
           progress: -x / pageWidth
@@ -409,21 +407,20 @@ const Flipbook = ({
               return (
                 <div
                 key={ index }
-                className={ item.bgImage ? 'polygon blank' : 'polygon'}
+                className={ item[1] ? 'polygon blank' : 'polygon'}
                 style={{
-                  backgroundImage: item.bgImage,
+                  backgroundImage: item[1],
                   backgroundSize: polygonBgSize,
-                  backgroundPosition: item.bgPos,
+                  backgroundPosition: item[3],
                   width: polygonWidth,
                   height: polygonHeight,
-                  transform: item.transform,
-                  zIndex: item.z
+                  transform: item[4],
+                  zIndex: item[5]
                 }}
                 >
-                  <div
+                <div
                     className="lighting"
-                    v-show="lighting.length"
-                    style={{ backgroundImage: 'lighting' }}
+                    style={{ backgroundImage: item[3] }}
                   />
                 </div>
               )
