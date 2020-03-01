@@ -216,7 +216,10 @@ const Flipbook = ({
           if (ratio < 0) {
             ratio = 0;
           }
-          flip.progress = ratio;
+          setFlip({
+            ...flip,
+            progress: ratio
+          })
           if (ratio > 0) {
             return animate();
           } else {
@@ -229,7 +232,11 @@ const Flipbook = ({
                 return flip.direction = null;
               });
             }
-            return flip.auto = false;
+            setFlip({
+              ...flip,
+              auto: false
+            })
+            return false;
           }
         });
       };
