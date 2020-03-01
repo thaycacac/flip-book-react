@@ -192,7 +192,8 @@ const Flipbook = ({
             }
             setFlip({
               ...flip,
-              auto: false
+              auto: false,
+              progress: 1
             })
             return false;
           }
@@ -334,7 +335,6 @@ const Flipbook = ({
     if (ev.which && ev.which !== 1) {
       return;
     } // Ignore right-click
-    console.log(polygonArray);
     return swipeMove(ev);
   }
 
@@ -418,10 +418,12 @@ const Flipbook = ({
                   zIndex: item[5]
                 }}
                 >
-                <div
+                {
+                  item[2].length && <div
                     className="lighting"
-                    style={{ backgroundImage: item[3] }}
+                    style={{ backgroundImage: item[2] }}
                   />
+                }
                 </div>
               )
             })
