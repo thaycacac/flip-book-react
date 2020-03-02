@@ -444,12 +444,12 @@ const Flipbook = ({
                         zIndex: item[5]
                       }}
                       >
-                      {/* {
+                      {
                         item[2].length && <div
                           className="lighting"
                           style={{ backgroundImage: item[2] }}
                         />
-                      } */}
+                      }
                       </div>
                     )
                   })
