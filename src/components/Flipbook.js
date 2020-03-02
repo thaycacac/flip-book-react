@@ -198,22 +198,19 @@ const Flipbook = ({
             if (displayedPages === 1 && flip.direction === 'right') {
               setFlip({
                 ...flip,
-                direction: null,
-                auto: false,
-                progress: 1
+                direction: null
               })
             } else {
               onImageLoad(1, () => {
+                console.log('callback here');
                 setFlip({
                   ...flip,
-                  auto: false,
                   direction: null,
-                  progress: 1
+                  auto: false,
+                  progress: 0
                 })
-                return null;
               });
             }
-            return false;
           }
         });
       };
@@ -261,7 +258,6 @@ const Flipbook = ({
                   direction: null,
                   auto: false
                 })
-                return null;
               });
             }
             return false;
@@ -275,17 +271,13 @@ const Flipbook = ({
     setNImageLoad(0)
     setNImageLoadTrigger(trigger)
     setImageLoadCallback(cb)
-    return imageLoadCallback
   }
 
   const didLoadImage = ev => {
     if (!imageLoadCallback) {
       return;
     }
-    if (++nImageLoad >= nImageLoadTrigger) {
-      imageLoadCallback();
-      return null;
-    }
+    imageLoadCallback()
   }
 
   const swipeStart = touch => {
@@ -310,14 +302,8 @@ const Flipbook = ({
       if (flip.direction === 'left') {
         setFlip({
           ...flip,
-          progress: x / pageWidth
+          progress: x / pageWidth < 1 ? x / pageWidth : 1
         })
-        if (flip.progress > 1) {
-          setFlip({
-            ...flip,
-            progress: 1
-          })
-        }
       }
     } else {
       if (flip.direction === null && canFlipRight && x <= -5) {
@@ -326,14 +312,8 @@ const Flipbook = ({
       if (flip.direction === 'right') {
         setFlip({
           ...flip,
-          progress: -x / pageWidth
+          progress: -x / pageWidth < 1 ? -x / pageWidth : 1
         })
-        if (flip.progress > 1) {
-          setFlip({
-            ...flip,
-            progress: 1
-          })
-        }
       }
     }
     return true;
@@ -362,7 +342,6 @@ const Flipbook = ({
   }
 
   const onMouseMove = ev => {
-    logEvery(currentPage)
     if (hasPointerEvents) {
       return;
     }
@@ -418,7 +397,7 @@ const Flipbook = ({
             style={{
               width: pageWidth * displayedPages + 'px',
               height: pageHeight + 'px',
-              margin: 'auto'
+              margin: 'auto'  
             }}
           >
             <div className="viewport">
@@ -465,12 +444,12 @@ const Flipbook = ({
                         zIndex: item[5]
                       }}
                       >
-                      {
+                      {/* {
                         item[2].length && <div
                           className="lighting"
                           style={{ backgroundImage: item[2] }}
                         />
-                      }
+                      } */}
                       </div>
                     )
                   })
