@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from "react";
-import {
-  easeIn,
-  easeInOut,
-  easeOut,
-} from "../helper";
+import React, { useState, useEffect } from "react"
+import { easeInOut } from "../helper"
+import { Subscribe } from "unstated"
+import FlipBookContainer from "../Stores/Flipbook";
 import {
   _canFlipLeft,
   _canFlipRight,
@@ -12,10 +10,9 @@ import {
   _polygonHeight,
   _polygonWidth
 } from '../computed'
-import "./Styles.css";
+import "./Styles.css"
 
 const Flipbook = ({
-  pages,
   flipDuration = 1000,
   spaceTop = 0
 }) => {
@@ -25,7 +22,15 @@ const Flipbook = ({
     frontImage: null,
     backImage: null,
     auto: false
-  };
+  }
+
+  const {
+    pageWidth,
+    pageHeight,
+    pages,
+    leftPage,
+    rightPage
+  } = FlipBookContainer.state
 
   const [nPages, setNPages] = useState(pages.length);
   const [displayedPages, setDisplayedPages] = useState(1);
@@ -33,8 +38,6 @@ const Flipbook = ({
   const [nImageLoadTrigger, setNImageLoadTrigger] = useState(0);
   const [imageLoadCallback, setImageLoadCallback] = useState(null);
   const [currentPage, setCurrentPage] = useState(0);
-  const [leftPage, setLeftPage] = useState(0);
-  const [rightPage, setRightPage] = useState(1);
   const [touchStartX, setTouchStartX] = useState(null);
   const [touchStartY, setTouchStartY] = useState(null);
   const [hasPointerEvents, setHasPointerEvents] = useState(false);
@@ -42,8 +45,6 @@ const Flipbook = ({
   const [maxX, setMaxX] = useState(-Infinity);
   const [preloadedImages, setPreloadedImages] = useState({});
   const [flip, setFlip] = useState(flipInit);
-  const [pageWidth, setPageWidth] = useState(640)
-  const [pageHeight, setPageHeight] = useState(906)
   const [xMargin, setXMargin] = useState(0) // this.pageWidth * 2 - this.pageWidth * this.displayedPages) / 2
   // computed
   const canFlipLeft = _canFlipLeft(flip, currentPage, displayedPages, leftPage, pages)
@@ -59,8 +60,10 @@ const Flipbook = ({
   }, []);
 
   useEffect(() => {
-    setLeftPage(currentPage)
-    setRightPage(currentPage + 1)
+    FlipBookContainer.setState({
+      leftPage: currentPage,
+      rightPage: currentPage + 1
+    })
     preloadImages()
   }, [currentPage])
 
@@ -141,13 +144,19 @@ const Flipbook = ({
       return requestAnimationFrame(() => {
         if (direction === 'left') {
           if (displayedPages === 2) {
-            setLeftPage(currentPage - displayedPages)
+            FlipBookContainer.setState({
+              leftPage: currentPage - displayedPages
+            })
           }
         } else {
           if (displayedPages === 1) {
-            setLeftPage(currentPage + displayedPages)
-          } else {
-            setRightPage(currentPage + 1 + displayedPages)
+            FlipBookContainer.setState({
+              leftPage: currentPage + displayedPages
+            })
+          } else {  
+            FlipBookContainer.setState({
+              rightPage: currentPage + 1 + displayedPages
+            })
           }
         }
         if (auto) {
@@ -235,8 +244,10 @@ const Flipbook = ({
           if (ratio > 0) {
             return animate();
           } else {
-            setLeftPage(currentPage)
-            setRightPage(currentPage + 1)
+            FlipBookContainer.setState({
+              leftPage: currentPage,
+              rightPage: currentPage + 1
+            })
             if (displayedPages === 1 && flip.direction === 'left') {
               setFlip({
                 ...flip,
@@ -351,6 +362,7 @@ const Flipbook = ({
   }
 
   const onMouseMove = ev => {
+    logEvery(currentPage)
     if (hasPointerEvents) {
       return;
     }
@@ -390,71 +402,83 @@ const Flipbook = ({
   };
 
   return (
-    <div
-      className="flipbook"
-      onMouseDown={ev => onMouseDown(ev)}
-      onMouseMove={ev => onMouseMove(ev)}
-      onMouseUp={ev => onMouseUp(ev)}
-    >
-      <div className="viewport">
-      <div className="container" style={{ width: '100%' }}>
-        <div
-          className="centering-box"
-          style={{ width: pageWidth * displayedPages }}
-        >
-          { pageUrl(leftPage) && <img
-            className="page fixed"
-            style={{
-              width: pageWidth + 'px',
-              height: pageHeight + 'px',
-              left: xMargin + 'px',
-              top: spaceTop + 'px'
-            }}
-            src={pageUrl(leftPage)}
-            onLoad={($event) => didLoadImage($event)}
-          />}
-          { displayedPages === 2 && pageUrl(rightPage) && <img
-            className="page fixed"
-            style={{
-              width: pageWidth + 'px',
-              height: pageHeight + 'px',
-              left: pageWidth + 'px',
-              top: spaceTop + 'px'
-            }}
-            src={pageUrl(rightPage)}
-            onLoad={($event) => didLoadImage($event)}
-          />}
-          {
-            polygonArray.map((item, index) => {
-              return (
-                <div
-                key={ index }
-                className={ item[1] ? 'polygon blank' : 'polygon'}
-                style={{
-                  backgroundImage: item[1],
-                  backgroundSize: polygonBgSize,
-                  backgroundPosition: item[3],
-                  width: polygonWidth,
-                  height: polygonHeight,
-                  transform: item[4],
-                  zIndex: item[5]
-                }}
-                >
+    <Subscribe to={[FlipBookContainer]}>
+      {flipBookContainer => {
+        const {
+          pageWidth,
+          pageHeight,
+          leftPage,
+          rightPage
+        } = flipBookContainer.state
+        return (
+          <div
+            className="flipbook"
+            onMouseDown={ev => onMouseDown(ev)}
+            onMouseMove={ev => onMouseMove(ev)}
+            onMouseUp={ev => onMouseUp(ev)}
+          >
+            <div className="viewport">
+            <div className="container" style={{ width: '100%' }}>
+              <div
+                className="centering-box"
+                style={{ width: pageWidth * displayedPages }}
+              >
+                { pageUrl(leftPage) && <img
+                  className="page fixed"
+                  style={{
+                    width: pageWidth + 'px',
+                    height: pageHeight + 'px',
+                    left: xMargin + 'px',
+                    top: spaceTop + 'px'
+                  }}
+                  src={pageUrl(leftPage)}
+                  onLoad={($event) => didLoadImage($event)}
+                />}
+                { displayedPages === 2 && pageUrl(rightPage) && <img
+                  className="page fixed"
+                  style={{
+                    width: pageWidth + 'px',
+                    height: pageHeight + 'px',
+                    left: pageWidth + 'px',
+                    top: spaceTop + 'px'
+                  }}
+                  src={pageUrl(rightPage)}
+                  onLoad={($event) => didLoadImage($event)}
+                />}
                 {
-                  item[2].length && <div
-                    className="lighting"
-                    style={{ backgroundImage: item[2] }}
-                  />
+                  polygonArray.map((item, index) => {
+                    return (
+                      <div
+                      key={ index }
+                      className={ item[1] ? 'polygon blank' : 'polygon'}
+                      style={{
+                        backgroundImage: item[1],
+                        backgroundSize: polygonBgSize,
+                        backgroundPosition: item[3],
+                        width: polygonWidth,
+                        height: polygonHeight,
+                        transform: item[4],
+                        zIndex: item[5]
+                      }}
+                      >
+                      {
+                        item[2].length && <div
+                          className="lighting"
+                          style={{ backgroundImage: item[2] }}
+                        />
+                      }
+                      </div>
+                    )
+                  })
                 }
                 </div>
-              )
-            })
-          }
+                <div className="guard" />
+              </div>
+            </div>
           </div>
-          <div className="guard" />
-        </div>
-      </div>
-    </div>
+        );
+      }}
+    </Subscribe>
   );
 };
 
