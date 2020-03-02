@@ -46,7 +46,7 @@ const Flipbook = ({
   const [pageHeight, setPageHeight] = useState(906)
   const [xMargin, setXMargin] = useState(0) // this.pageWidth * 2 - this.pageWidth * this.displayedPages) / 2
   // computed
-  const canFlipLeft = _canFlipLeft(pages, flip, currentPage, displayedPages, leftPage)
+  const canFlipLeft = _canFlipLeft(flip, currentPage, displayedPages, leftPage, pages)
   const canFlipRight = _canFlipRight(flip, currentPage, nPages, displayedPages)
   const polygonArray = _polygonArray(flip, displayedPages, pageWidth, xMargin, spaceTop, minX, maxX, setMinX, setMaxX)
   const polygonBgSize = _polygonBgSize(pageWidth, pageHeight)
@@ -106,12 +106,14 @@ const Flipbook = ({
       if (displayedPages === 1) {
         setFlip({
           ...flip,
+          direction: direction,
           frontImage: pageUrl(currentPage - 1),
           backImage: null
         })
       } else {
         setFlip({
           ...flip,
+          direction: direction,
           frontImage: pageUrl(leftPage),
           backImage: pageUrl(currentPage - displayedPages + 1)
         })
@@ -185,24 +187,21 @@ const Flipbook = ({
             if (displayedPages === 1 && flip.direction === 'right') {
               setFlip({
                 ...flip,
-                direction: null
+                direction: null,
+                auto: false,
+                progress: 1
               })
             } else {
               onImageLoad(1, () => {
                 setFlip({
                   ...flip,
                   auto: false,
-                  direction: null
+                  direction: null,
+                  progress: 1
                 })
                 return null;
               });
             }
-            setFlip({
-              ...flip,
-              auto: false,
-              progress: 1,
-              direction: null
-            })
             return false;
           }
         });
@@ -239,21 +238,19 @@ const Flipbook = ({
             if (displayedPages === 1 && flip.direction === 'left') {
               setFlip({
                 ...flip,
-                direction: null
+                direction: null,
+                auto: false
               })
             } else {
               onImageLoad(1, () => {
                 setFlip({
                   ...flip,
-                  direction: null
+                  direction: null,
+                  auto: false
                 })
                 return null;
               });
             }
-            setFlip({
-              ...flip,
-              auto: false
-            })
             return false;
           }
         });
@@ -299,6 +296,7 @@ const Flipbook = ({
         flipStart('left', false);
       }
       if (flip.direction === 'left') {
+        console.log('reminder', x / pageWidth);
         setFlip({
           ...flip,
           progress: x / pageWidth

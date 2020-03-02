@@ -10,16 +10,17 @@ const pageUrl = (pages, page) => {
   return pages[page] || null;
 }
 
-const canFlipLeft = (pages, flip, currentPage, displayedPages, leftPage) => {
+const canFlipLeft = (flip, currentPage, displayedPages, leftPage, pages) => {
   return (
     !flip.direction &&
-    currentPage >= displayedPages &&
+    (currentPage >= displayedPages) &&
     !(displayedPages === 1 && !pageUrl(pages, leftPage - 1))
-  );
+  )
 }
 
+
 const canFlipRight = (flip, currentPage, nPages, displayedPages) => {
-  return !flip.direction && currentPage < nPages - displayedPages;
+  return !flip.direction && currentPage < nPages - displayedPages
 }
 
 const polygonWidth = pageWidth => {
