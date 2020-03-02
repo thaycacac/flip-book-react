@@ -137,7 +137,8 @@ const Flipbook = ({
     }
     return requestAnimationFrame(() => {
       return requestAnimationFrame(() => {
-        if (flip.direction === 'left') {
+        console.log(flip.direction);
+        if (direction === 'left') {
           if (displayedPages === 2) {
             setLeftPage(currentPage - displayedPages)
           }
@@ -281,7 +282,7 @@ const Flipbook = ({
   }
 
   const swipeMove = touch => {
-    logEvery()
+    // logEvery()
     var x, y;
     if (touchStartX == null) {
       return;
@@ -296,7 +297,6 @@ const Flipbook = ({
         flipStart('left', false);
       }
       if (flip.direction === 'left') {
-        console.log('reminder', x / pageWidth);
         setFlip({
           ...flip,
           progress: x / pageWidth
