@@ -412,10 +412,14 @@ const Flipbook = ({
         } = flipBookContainer.state
         return (
           <div
-            className="flipbook"
             onMouseDown={ev => onMouseDown(ev)}
             onMouseMove={ev => onMouseMove(ev)}
             onMouseUp={ev => onMouseUp(ev)}
+            style={{
+              width: pageWidth * displayedPages + 'px',
+              height: pageHeight + 'px',
+              margin: 'auto'
+            }}
           >
             <div className="viewport">
             <div className="container" style={{ width: '100%' }}>
