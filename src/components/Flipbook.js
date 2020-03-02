@@ -58,6 +58,12 @@ const Flipbook = ({
     preloadImages();
   }, []);
 
+  useEffect(() => {
+    setLeftPage(currentPage)
+    setRightPage(currentPage + 1)
+    preloadImages()
+  }, [currentPage])
+
   // method
   const onResize = () => {
     setDisplayedPages(pageWidth * 2 > pageHeight ? 2 : 1)
@@ -185,7 +191,8 @@ const Flipbook = ({
               onImageLoad(1, () => {
                 setFlip({
                   ...flip,
-                  auto: false
+                  auto: false,
+                  direction: null
                 })
                 return null;
               });
@@ -193,7 +200,8 @@ const Flipbook = ({
             setFlip({
               ...flip,
               auto: false,
-              progress: 1
+              progress: 1,
+              direction: null
             })
             return false;
           }
@@ -207,7 +215,10 @@ const Flipbook = ({
       t0 = Date.now();
       duration = flipDuration * flip.progress;
       startRatio = flip.progress;
-      flip.auto = true;
+      setFlip({
+        ...flip,
+        auto: true
+      })
       animate = () => {
         return requestAnimationFrame(() => {
           var ratio, t;
@@ -226,10 +237,17 @@ const Flipbook = ({
             setLeftPage(currentPage)
             setRightPage(currentPage + 1)
             if (displayedPages === 1 && flip.direction === 'left') {
-              flip.direction = null;
+              setFlip({
+                ...flip,
+                direction: null
+              })
             } else {
               onImageLoad(1, () => {
-                return flip.direction = null;
+                setFlip({
+                  ...flip,
+                  direction: null
+                })
+                return null;
               });
             }
             setFlip({
@@ -297,7 +315,6 @@ const Flipbook = ({
         flipStart('right', false);
       }
       if (flip.direction === 'right') {
-        console.log('object', -x / pageWidth);
         setFlip({
           ...flip,
           progress: -x / pageWidth
