@@ -7,7 +7,9 @@ const nPolygons = 10
 const perspective = '2400px'
 
 const pageUrl = (pages, page) => {
-  return pages[page] || null;
+  if (!pages[page]) return null
+  // if (!pages[page].url) return default
+  return pages[page].url || null;
 }
 
 const canFlipLeft = (flip, currentPage, displayedPages, leftPage, pages) => {

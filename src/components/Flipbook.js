@@ -98,7 +98,9 @@ const Flipbook = ({
   }
 
   const pageUrl = (page) => {
-    return pages[page] || null;
+    if (!pages[page]) return null
+    // if (!pages[page].url) return default
+    return pages[page].url || null;
   }
 
   const flipStart = async (direction, auto) => {
@@ -137,7 +139,6 @@ const Flipbook = ({
     }
     return requestAnimationFrame(() => {
       return requestAnimationFrame(() => {
-        console.log(flip.direction);
         if (direction === 'left') {
           if (displayedPages === 2) {
             setLeftPage(currentPage - displayedPages)
@@ -282,7 +283,6 @@ const Flipbook = ({
   }
 
   const swipeMove = touch => {
-    // logEvery()
     var x, y;
     if (touchStartX == null) {
       return;

@@ -6,12 +6,30 @@ import "./App.css";
 function App() {
   const initPages = [
     null,
-    "images/1.jpg",
-    "images/2.jpg",
-    "images/3.jpg",
-    "images/4.jpg",
-    "images/5.jpg",
-    "images/6.jpg"
+    {
+      url: "images/1.jpg",
+      id: '8182045543'
+    },
+    {
+      url: "images/2.jpg",
+      id: "4591469984"
+    },
+    {
+      url: "images/3.jpg",
+      id: "3816263638"
+    },
+    {
+      url: "images/4.jpg",
+      id: "7912047691"
+    },
+    {
+      url: "images/5.jpg",
+      id: "4944943318"
+    },
+    {
+      url: "images/6.jpg",
+      id: "3800999370"
+    }
   ];
 
   const [hasMouse, setHasMouse] = useState(true);

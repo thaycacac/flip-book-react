@@ -18,8 +18,7 @@
   .flipbook {
     position: relative;
     width: 90vw;
-    height: calc(100vh - 50px - 40px); 
-    margin-top: 50px;
+    height: calc(100vh - 50px - 40px);
   }
   
   .flipbook .bounding-box {
